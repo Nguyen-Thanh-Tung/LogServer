@@ -57,3 +57,14 @@ typings/
 # dotenv environment variables file
 .env
 
+# folder of ide
+.idea
+
+package-lock.json
+
+# config eslint
+.eslintrc
+
+# prepros
+prepros-6.config
+
