@@ -7,6 +7,7 @@
 const app = require('../app');
 const debug = require('debug')('server1:server');
 const http = require('http');
+const WebSocket = require('ws');
 
 /**
  * Get port from environment and store in Express.
@@ -18,8 +19,27 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
+let count = 0;
+const reportService = require('../services/report-service');
+let tempWs = null;
 const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+wss.on('connection', (ws, req) => {
+  if (req.url === '/view') {
+    tempWs = ws;
+  }
+  ws.on('message', (message) => {
+    if (req.url === '/') {
+      reportService.addReportForServer(message, (responseData) => {
+        if (tempWs) {
+          tempWs.send(responseData.toString());
+        }
+      });
+    }
+  });
+
+  // ws.send('something');
+});
 
 /**
  * Listen on provided port, on all network interfaces.

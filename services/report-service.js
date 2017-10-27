@@ -5,11 +5,12 @@ exports.getReportByServer = () => {
   // Todo
 };
 
-exports.addReportForServer = (data, callback) => {
+exports.addReportForServer = (dataReq, callback) => {
   // Attach data to get server, get log
   let logStringArr = [];
   const responseTimeArr = [];
-  const logs = JSON.parse(data.logs);
+  const data = JSON.parse(dataReq);
+  const logs = data.logs;
   const requestNumber = logs.length;
   const serverId = data.server_id;
   const connectionNumber = parseInt(data.connection, 10);
@@ -39,9 +40,10 @@ exports.addReportForServer = (data, callback) => {
       error_number: errorNumber,
       connection_number: connectionNumber,
     };
-    reportRepo.addReportForServer(reportData, (responseData) => {
-      callback(logStringArr);
-    });
+    callback(logStringArr);
+    // reportRepo.addReportForServer(reportData, (responseData) => {
+    //   callback(logStringArr);
+    // });
   }).catch((err) => {
     console.log(err.message);
   });

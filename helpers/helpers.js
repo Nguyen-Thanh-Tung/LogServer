@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt-nodejs');
 
 const { mongoose, constants } = global;
+
 exports.connectDatabase = () => {
   mongoose.connect(process.env.DB_URL, {
     useMongoClient: true,
