@@ -13,11 +13,16 @@ Log Server for DSD06
 
 # Init, start server
 Step 1: Create file .env
+
     cp .env-sample .env
+
     Node: Write value for DB_URL (Exp: mongodb://127.0.0.1/logsystem)
 Step 2: Import module
+
     npm install
+
 Step 3: Start server
+    
     node ./bin/www
 
 # Create database (fake data)
