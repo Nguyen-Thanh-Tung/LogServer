@@ -7,7 +7,7 @@ exports.getReportByServer = () => {
 
 exports.addReportForServer = (dataReq, callback) => {
   // Attach data to get server, get log
-  let logStringArr = [];
+  let logFormatArr = [];
   const responseTimeArr = [];
   const data = JSON.parse(dataReq);
   const logs = data.logs;
@@ -16,6 +16,7 @@ exports.addReportForServer = (dataReq, callback) => {
   const connectionNumber = parseInt(data.connection, 10);
   let errorNumber = 0;
   const serverPromiseList = [];
+
   logs.forEach((log) => {
     // Processing data, use pooling
     const responseTime = parseFloat(log['response-time']) * 1000;
@@ -23,15 +24,17 @@ exports.addReportForServer = (dataReq, callback) => {
       errorNumber += 1;
     }
     const serverPromise = serverRepo.getServerDetail(serverId).then((server) => {
-      return createLogString(server, log);
+      return formatLog(server, log);
     });
     serverPromiseList.push(serverPromise);
     responseTimeArr.push(responseTime);
   });
+
   const responseTimeMedium =
     Math.round(responseTimeArr.reduce((a, b) => a + b) / responseTimeArr.length);
-  Promise.all(serverPromiseList).then((logStrings) => {
-    logStringArr = logStrings;
+
+  Promise.all(serverPromiseList).then((logFormat) => {
+    logFormatArr = logFormat;
     // Add report to database
     const reportData = {
       server_id: serverId,
@@ -40,7 +43,7 @@ exports.addReportForServer = (dataReq, callback) => {
       error_number: errorNumber,
       connection_number: connectionNumber,
     };
-    callback(logStringArr);
+    callback(logFormatArr);
     // reportRepo.addReportForServer(reportData, (responseData) => {
     //   callback(logStringArr);
     // });
@@ -53,9 +56,7 @@ exports.deleteReportByTime = () => {
   // Todo
 };
 
-
-// Function
-function createLogString(server, log) {
+function formatLog(server, log) {
   const serverName = server.server_name;
   const serverIp = server.server_ip;
   const method = log.method;
@@ -63,6 +64,15 @@ function createLogString(server, log) {
   const path = log.url;
   const responseTime = log['response-time'] * 1000;
   const contentLength = log.res;
-  return `${serverName} ${serverIp} ${method} ${path} ${status} ${responseTime} ms - ${contentLength}`;
+  return {
+    serverName,
+    serverIp,
+    method,
+    status,
+    path,
+    responseTime,
+    contentLength,
+  };
 }
+
 

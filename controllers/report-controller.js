@@ -1,15 +1,16 @@
 const reportService = require('../services/report-service');
-
 exports.getReportByServer = (req, res) => {
   // Todo
 };
-let count = 0;
 exports.addReportForServer = (req, res) => {
   // Get data from agent
-  const data = req.body;
+  const data = req.body.data;
+
   reportService.addReportForServer(data, (responseData) => {
-    console.log(responseData);
-    res.send('ok');
+    if (global.ws) {
+      global.ws.send(JSON.stringify(responseData));
+    }
   });
+  res.send('ok');
 };
 

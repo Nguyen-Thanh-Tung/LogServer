@@ -24,15 +24,17 @@ const reportService = require('../services/report-service');
 let tempWs = null;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+global.wss = wss;
 wss.on('connection', (ws, req) => {
   if (req.url === '/view') {
     tempWs = ws;
+    global.ws = tempWs;
   }
   ws.on('message', (message) => {
     if (req.url === '/') {
       reportService.addReportForServer(message, (responseData) => {
         if (tempWs) {
-          tempWs.send(responseData.toString());
+          tempWs.send(JSON.stringify(responseData));
         }
       });
     }
