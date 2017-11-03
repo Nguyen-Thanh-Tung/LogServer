@@ -21,28 +21,37 @@ app.set('port', port);
  */
 let count = 0;
 const reportService = require('../services/report-service');
-let tempWs = null;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 global.wss = wss;
+const clientViewList = [];
+
 wss.on('connection', (ws, req) => {
   if (req.url === '/view') {
-    tempWs = ws;
-    global.ws = tempWs;
+    clientViewList.push(ws);
+    global.ws = clientViewList;
   }
   ws.on('message', (message) => {
     if (req.url === '/') {
       reportService.addReportForServer(message, (responseData) => {
-        if (tempWs) {
-          tempWs.send(JSON.stringify(responseData));
-        }
+        sendAll(JSON.stringify(responseData));
       });
     }
   });
 
-  // ws.send('something');
+  ws.on('close', function() {
+    clientViewList.splice(clientViewList.indexOf(ws), 1);
+  });
+  ws.on('error', function() {
+    clientViewList.splice(clientViewList.indexOf(ws), 1);
+  });
 });
 
+function sendAll(message) {
+  for (let i = 0; i < clientViewList.length; i += 1) {
+    clientViewList[i].send(message);
+  }
+}
 /**
  * Listen on provided port, on all network interfaces.
  */

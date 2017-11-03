@@ -8,7 +8,9 @@ exports.addReportForServer = (req, res) => {
 
   reportService.addReportForServer(data, (responseData) => {
     if (global.ws) {
-      global.ws.send(JSON.stringify(responseData));
+      for (let i = 0; i < global.ws.length; i += 1) {
+        global.ws[i].send(JSON.stringify(responseData));
+      }
     }
   });
   res.send('ok');

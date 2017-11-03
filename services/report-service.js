@@ -7,49 +7,55 @@ exports.getReportByServer = () => {
 
 exports.addReportForServer = (dataReq, callback) => {
   // Attach data to get server, get log
-  let logFormatArr = [];
   const responseTimeArr = [];
   const data = JSON.parse(dataReq);
-  const logs = data.logs;
+  const { logs, serverId } = data;
   const requestNumber = logs.length;
-  const serverId = data.server_id;
   const connectionNumber = parseInt(data.connection, 10);
   let errorNumber = 0;
-  const serverPromiseList = [];
 
-  logs.forEach((log) => {
+  const logFormatArr = logs.map((log) => {
     // Processing data, use pooling
-    const responseTime = parseFloat(log['response-time']) * 1000;
+    const responseTime = Math.round(parseFloat(log['response-time']) * 1000);
     if (log.status !== '200') {
       errorNumber += 1;
     }
-    const serverPromise = serverRepo.getServerDetail(serverId).then((server) => {
-      return formatLog(server, log);
-    });
-    serverPromiseList.push(serverPromise);
     responseTimeArr.push(responseTime);
+    return formatLog(data, log);
   });
-
   const responseTimeMedium =
     Math.round(responseTimeArr.reduce((a, b) => a + b) / responseTimeArr.length);
 
-  Promise.all(serverPromiseList).then((logFormat) => {
-    logFormatArr = logFormat;
-    // Add report to database
-    const reportData = {
+  const reportData = {
       server_id: serverId,
       request_number: requestNumber,
       response_time: responseTimeMedium,
       error_number: errorNumber,
       connection_number: connectionNumber,
     };
+  reportRepo.addReportForServer(reportData, (responseData) => {
     callback(logFormatArr);
+  });
+
+
+
+  // Promise.all(serverPromiseList).then((logFormat) => {
+  //   logFormatArr.push(formatLog());
+    // Add report to database
+    // const reportData = {
+    //   server_id: serverId,
+    //   request_number: requestNumber,
+    //   response_time: responseTimeMedium,
+    //   error_number: errorNumber,
+    //   connection_number: connectionNumber,
+    // };
+    // callback(logFormatArr);
     // reportRepo.addReportForServer(reportData, (responseData) => {
     //   callback(logStringArr);
     // });
-  }).catch((err) => {
-    console.log(err.message);
-  });
+  // }).catch((err) => {
+  //   console.log(err.message);
+  // });
 };
 
 exports.deleteReportByTime = () => {
@@ -57,12 +63,12 @@ exports.deleteReportByTime = () => {
 };
 
 function formatLog(server, log) {
-  const serverName = server.server_name;
-  const serverIp = server.server_ip;
+  const serverName = server.serverName;
+  const serverIp = server.serverIp;
   const method = log.method;
   const status = log.status;
   const path = log.url;
-  const responseTime = log['response-time'] * 1000;
+  const responseTime = Math.round(log['response-time'] * 1000);
   const contentLength = log.res;
   return {
     serverName,
