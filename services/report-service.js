@@ -36,26 +36,6 @@ exports.addReportForServer = (dataReq, callback) => {
   reportRepo.addReportForServer(reportData, (responseData) => {
     callback(logFormatArr);
   });
-
-
-
-  // Promise.all(serverPromiseList).then((logFormat) => {
-  //   logFormatArr.push(formatLog());
-    // Add report to database
-    // const reportData = {
-    //   server_id: serverId,
-    //   request_number: requestNumber,
-    //   response_time: responseTimeMedium,
-    //   error_number: errorNumber,
-    //   connection_number: connectionNumber,
-    // };
-    // callback(logFormatArr);
-    // reportRepo.addReportForServer(reportData, (responseData) => {
-    //   callback(logStringArr);
-    // });
-  // }).catch((err) => {
-  //   console.log(err.message);
-  // });
 };
 
 exports.deleteReportByTime = () => {
@@ -80,5 +60,4 @@ function formatLog(server, log) {
     contentLength,
   };
 }
-
 

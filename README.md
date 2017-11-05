@@ -12,19 +12,11 @@ Log Server for DSD06
 - Jade (View)
 
 # Init, start server
-Step 1: Create file .env
-
-    cp .env-sample .env
-
-    Node: Write value for DB_URL (Exp: mongodb://127.0.0.1/logsystem)
-Step 2: Import module
+Step 1: Import module
 
     npm install
 
-Step 3: Start server
+Step 2: Start server
     
-    node ./bin/www
-
-# Create database (fake data)
-    node data_faker/fakeDatabase
+    npm start
 
