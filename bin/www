@@ -19,22 +19,37 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-let count = 0;
+let count = 0, countTemp = 0;
 const reportService = require('../services/report-service');
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 global.wss = wss;
 const clientViewList = [];
+const clientArr = [];
+let logsAll = [];
+let date = new Date().getTime();
 
 wss.on('connection', (ws, req) => {
   if (req.url === '/view') {
     clientViewList.push(ws);
     global.ws = clientViewList;
   }
+
+  clientArr.push(ws);
+
   ws.on('message', (message) => {
     if (req.url === '/') {
+      const data = JSON.parse(message);
+      const logs = data.logs;
+      // count += logs.length;
+      logsAll = logsAll.concat(logs);
+      const date1 = new Date().getTime();
+      if ((date1 - date) >= 1000) {
+        date = date1;
+        sendAll(JSON.stringify(logsAll));
+        logsAll.length = 0;
+      }
       reportService.addReportForServer(message, (responseData) => {
-        sendAll(JSON.stringify(responseData));
       });
     }
   });

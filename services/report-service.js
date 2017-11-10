@@ -11,17 +11,18 @@ exports.addReportForServer = (dataReq, callback) => {
   const data = JSON.parse(dataReq);
   const { logs, serverId } = data;
   const requestNumber = logs.length;
-  const connectionNumber = parseInt(data.connection, 10);
+  const connectionNumber = 1;
   let errorNumber = 0;
 
   const logFormatArr = logs.map((log) => {
     // Processing data, use pooling
-    const responseTime = Math.round(parseFloat(log['response-time']) * 1000);
+    const responseTime = log.responseTime;
     if (log.status !== '200') {
       errorNumber += 1;
     }
     responseTimeArr.push(responseTime);
-    return formatLog(data, log);
+    return null;
+    // return formatLog(data, log);
   });
   const responseTimeMedium =
     Math.round(responseTimeArr.reduce((a, b) => a + b) / responseTimeArr.length);
@@ -34,7 +35,8 @@ exports.addReportForServer = (dataReq, callback) => {
       connection_number: connectionNumber,
     };
   reportRepo.addReportForServer(reportData, (responseData) => {
-    callback(logFormatArr);
+    // console.log(responseData);
+    callback(null);
   });
 };
 
