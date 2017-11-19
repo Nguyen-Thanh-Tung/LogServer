@@ -19,8 +19,10 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-let count = 0, countTemp = 0;
+let count = 0;
+let countTemp = 0;
 const reportService = require('../services/report-service');
+
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 global.wss = wss;
@@ -44,7 +46,7 @@ wss.on('connection', (ws, req) => {
       // count += logs.length;
       logsAll = logsAll.concat(logs);
       const date1 = new Date().getTime();
-      if ((date1 - date) >= 1000) {
+      if ((date1 - date) >= 500) {
         date = date1;
         sendAll(JSON.stringify(logsAll));
         logsAll.length = 0;
@@ -54,10 +56,10 @@ wss.on('connection', (ws, req) => {
     }
   });
 
-  ws.on('close', function() {
+  ws.on('close', () => {
     clientViewList.splice(clientViewList.indexOf(ws), 1);
   });
-  ws.on('error', function() {
+  ws.on('error', () => {
     clientViewList.splice(clientViewList.indexOf(ws), 1);
   });
 });
@@ -65,6 +67,7 @@ wss.on('connection', (ws, req) => {
 function sendAll(message) {
   for (let i = 0; i < clientViewList.length; i += 1) {
     clientViewList[i].send(message);
+    console.log(message);
   }
 }
 /**

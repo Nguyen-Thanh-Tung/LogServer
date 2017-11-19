@@ -1,9 +1,4 @@
 const reportRepo = require('../responsitories/report-responsitory');
-const serverRepo = require('../responsitories/server-responsitory');
-
-exports.getReportByServer = () => {
-  // Todo
-};
 
 exports.addReportForServer = (dataReq, callback) => {
   // Attach data to get server, get log
@@ -22,18 +17,17 @@ exports.addReportForServer = (dataReq, callback) => {
     }
     responseTimeArr.push(responseTime);
     return null;
-    // return formatLog(data, log);
   });
   const responseTimeMedium =
     Math.round(responseTimeArr.reduce((a, b) => a + b) / responseTimeArr.length);
 
   const reportData = {
-      server_id: serverId,
-      request_number: requestNumber,
-      response_time: responseTimeMedium,
-      error_number: errorNumber,
-      connection_number: connectionNumber,
-    };
+    server_id: serverId,
+    request_number: requestNumber,
+    response_time: responseTimeMedium,
+    error_number: errorNumber,
+    connection_number: connectionNumber,
+  };
   reportRepo.addReportForServer(reportData, (responseData) => {
     // console.log(responseData);
     callback(null);
