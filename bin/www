@@ -67,7 +67,6 @@ wss.on('connection', (ws, req) => {
 function sendAll(message) {
   for (let i = 0; i < clientViewList.length; i += 1) {
     clientViewList[i].send(message);
-    console.log(message);
   }
 }
 /**
